@@ -109,6 +109,11 @@ func (jid JID) IsBroadcastList() bool {
 	return jid.Server == BroadcastServer && jid.User != StatusBroadcastJID.User
 }
 
+// IsNewsletter returns true if the JID is a newsletter.
+func (jid JID) IsNewsletter() bool {
+	return jid.Server == NewsletterServer
+}
+
 var botUserRegex = regexp.MustCompile(`^1313555\d{4}$|^131655500\d{2}$`)
 
 func (jid JID) IsBot() bool {

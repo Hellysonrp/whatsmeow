@@ -216,21 +216,35 @@ func (cli *Client) handlePlaintextMessage(info *types.MessageInfo, node *waBinar
 		// 3:
 		return
 	}
+	var msg waE2E.Message
 	plaintextBody, ok := plaintext.Content.([]byte)
 	if !ok {
-		cli.Log.Warnf("Plaintext message from %s doesn't have byte content", info.SourceString())
-		return
-	}
-	var msg waProto.Message
-	err := proto.Unmarshal(plaintextBody, &msg)
-	if err != nil {
-		cli.Log.Warnf("Error unmarshaling plaintext message from %s: %v", info.SourceString(), err)
-		return
+		// handle the special case of deleting a message in a newsletter
+		// mock a protocol message
+		if info.Edit == types.EditAttributeAdminRevoke {
+			cli.Log.Debugf("Mocking protocol message for deleted message from %s, id %s", info.SourceString(), info.ID)
+			msg = waE2E.Message{
+				ProtocolMessage: &waE2E.ProtocolMessage{
+					Key:  cli.BuildMessageKey(info.Chat, info.Sender, info.ID),
+					Type: waE2E.ProtocolMessage_REVOKE.Enum(),
+				},
+			}
+		} else {
+			cli.Log.Warnf("Plaintext message from %s doesn't have byte content", info.SourceString())
+			return
+		}
+	} else {
+		err := proto.Unmarshal(plaintextBody, &msg)
+		if err != nil {
+			cli.Log.Warnf("Error unmarshaling plaintext message from %s: %v", info.SourceString(), err)
+			return
+		}
 	}
 	cli.storeMessageSecret(info, &msg)
 	evt := &events.Message{
 		Info:       *info,
 		RawMessage: &msg,
+		IsEdit:     info.Edit == types.EditAttributeMessageEdit || info.Edit == types.EditAttributeAdminEdit,
 	}
 	meta, ok := node.GetOptionalChildByTag("meta")
 	if ok {
