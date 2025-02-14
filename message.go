@@ -46,7 +46,7 @@ func (cli *Client) handleEncryptedMessage(node *waBinary.Node) {
 		if len(info.PushName) > 0 && info.PushName != "-" {
 			go cli.updatePushName(info.Sender, info, info.PushName)
 		}
-		go cli.sendAck(node)
+		defer cli.maybeDeferredAck(node)()
 		if info.Sender.Server == types.NewsletterServer {
 			cli.handlePlaintextMessage(info, node)
 		} else {
@@ -331,7 +331,10 @@ func (cli *Client) decryptMessages(info *types.MessageInfo, node *waBinary.Node)
 		if err != nil {
 			cli.Log.Warnf("Error decrypting message from %s: %v", info.SourceString(), err)
 			isUnavailable := encType == "skmsg" && !containsDirectMsg && errors.Is(err, signalerror.ErrNoSenderKeyForUser)
-			go cli.sendRetryReceipt(node, info, isUnavailable)
+			// TODO figure out why @bot messages fail to decrypt
+			if info.Chat.Server != types.BotServer {
+				go cli.sendRetryReceipt(node, info, isUnavailable)
+			}
 			cli.dispatchEvent(&events.UndecryptableMessage{
 				Info:            *info,
 				IsUnavailable:   isUnavailable,
