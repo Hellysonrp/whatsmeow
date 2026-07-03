@@ -320,6 +320,16 @@ func (s *SQLStore) genOnePreKey(ctx context.Context, id uint32, markUploaded boo
 	return key, err
 }
 
+// PutPreKey persists a caller-supplied prekey (e.g. captured during session
+// import) using the same table and query as generated prekeys, marked
+// uploaded=false so the upload loop can pick it up if needed.
+func (s *SQLStore) PutPreKey(ctx context.Context, preKey *keys.PreKey) error {
+	s.preKeyLock.Lock()
+	defer s.preKeyLock.Unlock()
+	_, err := s.db.Exec(ctx, insertPreKeyQuery, s.JID, preKey.KeyID, preKey.Priv[:], false)
+	return err
+}
+
 func (s *SQLStore) getNextPreKeyID(ctx context.Context) (uint32, error) {
 	var lastKeyID sql.NullInt32
 	err := s.db.QueryRow(ctx, getLastPreKeyIDQuery, s.JID).Scan(&lastKeyID)

@@ -45,6 +45,9 @@ type PreKeyStore interface {
 	RemovePreKey(ctx context.Context, id uint32) error
 	MarkPreKeysAsUploaded(ctx context.Context, upToID uint32) error
 	UploadedPreKeyCount(ctx context.Context) (int, error)
+	// PutPreKey persists a pre-existing prekey (e.g. captured during session import)
+	// through the store API without generating a new one.
+	PutPreKey(ctx context.Context, preKey *keys.PreKey) error
 }
 
 type SenderKeyStore interface {
