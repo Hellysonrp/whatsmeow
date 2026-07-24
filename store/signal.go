@@ -17,6 +17,8 @@ import (
 	"go.mau.fi/libsignal/serialize"
 	"go.mau.fi/libsignal/state/record"
 	"go.mau.fi/libsignal/state/store"
+
+	"go.mau.fi/whatsmeow/util/keys"
 )
 
 var SignalProtobufSerializer = serialize.NewProtoBufSerializer()
@@ -75,7 +77,13 @@ func (device *Device) RemovePreKey(ctx context.Context, id uint32) error {
 }
 
 func (device *Device) StorePreKey(ctx context.Context, preKeyID uint32, preKeyRecord *record.PreKey) error {
-	panic("not implemented")
+	kp := preKeyRecord.KeyPair()
+	pub := kp.PublicKey().PublicKey()   // [32]byte via ECPublicKeyable.PublicKey()
+	priv := kp.PrivateKey().Serialize() // [32]byte via ECPrivateKeyable.Serialize()
+	return device.PreKeys.PutPreKey(ctx, &keys.PreKey{
+		KeyPair: keys.KeyPair{Pub: &pub, Priv: &priv},
+		KeyID:   preKeyID,
+	})
 }
 
 func (device *Device) ContainsPreKey(ctx context.Context, preKeyID uint32) (bool, error) {

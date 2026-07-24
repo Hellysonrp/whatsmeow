@@ -63,10 +63,23 @@ type qrChannel struct {
 	closed    atomic.Bool
 	output    chan<- QRChannelItem
 	stopQRs   chan struct{}
+	stopOnce  sync.Once
 }
 
 func (qrc *qrChannel) close() bool {
 	return qrc.closed.Swap(true) == false
+}
+
+// stopEmitter signals the QR code emitter to stop, without closing the output
+// channel or disconnecting the client. Used both by the terminal-event path and
+// when a passkey request arrives: once pairing moves on to the passkey step, the
+// emitter must not run out of codes and disconnect the client while we wait for
+// the passkey response. Guarded so it is safe to call more than once (e.g. a
+// passkey request followed by a later terminal event).
+func (qrc *qrChannel) stopEmitter() {
+	qrc.stopOnce.Do(func() {
+		close(qrc.stopQRs)
+	})
 }
 
 func (qrc *qrChannel) emitQRs(codes []string) {
@@ -139,6 +152,11 @@ func (qrc *qrChannel) handleEvent(rawEvt any) {
 		qrc.output <- QRChannelScannedWithoutMultidevice
 		return
 	case *events.PairPasskeyRequest:
+		// Pairing has moved on to the passkey step. Stop the QR emitter so it can't
+		// run out of codes and disconnect the client while we wait for the passkey
+		// response; the pairing continues on this same connection. The channel stays
+		// open for the confirmation and terminal events.
+		qrc.stopEmitter()
 		qrc.output <- QRChannelItem{
 			Event:          QRChannelEventPasskeyRequest,
 			PasskeyRequest: evt,
@@ -183,7 +201,7 @@ func (qrc *qrChannel) handleEvent(rawEvt any) {
 	default:
 		return
 	}
-	close(qrc.stopQRs)
+	qrc.stopEmitter()
 	if qrc.close() {
 		qrc.log.Debugf("Closing channel with status %+v", outputType)
 		qrc.output <- outputType

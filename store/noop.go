@@ -117,6 +117,10 @@ func (n *NoopStore) UploadedPreKeyCount(ctx context.Context) (int, error) {
 	return 0, n.Error
 }
 
+func (n *NoopStore) PutPreKey(ctx context.Context, preKey *keys.PreKey) error {
+	return n.Error
+}
+
 func (n *NoopStore) PutSenderKey(ctx context.Context, group, user string, session []byte) error {
 	return n.Error
 }
