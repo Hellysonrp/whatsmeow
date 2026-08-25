@@ -67,7 +67,7 @@ type qrChannel struct {
 }
 
 func (qrc *qrChannel) close() bool {
-	return qrc.closed.Swap(true) == false
+	return !qrc.closed.Swap(true)
 }
 
 // stopEmitter signals the QR code emitter to stop, without closing the output
@@ -87,7 +87,7 @@ func (qrc *qrChannel) emitQRs(codes []string) {
 	for {
 		if len(codes) == 0 {
 			if qrc.close() {
-				qrc.log.Debugf("Ran out of QR codes, closing channel with status %s and disconnecting client", QRChannelTimeout)
+				qrc.log.Debugf("Ran out of QR codes, closing channel with status %s and disconnecting client", QRChannelTimeout.Event)
 				qrc.output <- QRChannelTimeout
 				close(qrc.output)
 				go qrc.cli.RemoveEventHandler(qrc.handlerID)
