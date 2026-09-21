@@ -43,7 +43,12 @@ func (cli *Client) handleReceipt(ctx context.Context, node *waBinary.Node) {
 
 func (cli *Client) handleGroupedReceipt(partialReceipt events.Receipt, participants *waBinary.Node) (cancelled bool) {
 	pag := participants.AttrGetter()
-	partialReceipt.MessageIDs = []types.MessageID{pag.String("key")}
+	// Group receipts name the message with "key"; status broadcast receipts use "message_id".
+	messageID := pag.OptionalString("message_id")
+	if messageID == "" {
+		messageID = pag.String("key")
+	}
+	partialReceipt.MessageIDs = []types.MessageID{messageID}
 	for _, child := range participants.GetChildren() {
 		if child.Tag != "user" {
 			cli.Log.Warnf("Unexpected node in grouped receipt participants: %s", &child)
@@ -53,6 +58,20 @@ func (cli *Client) handleGroupedReceipt(partialReceipt events.Receipt, participa
 		receipt := partialReceipt
 		receipt.Timestamp = ag.UnixTime("t")
 		receipt.MessageSource.Sender = ag.JID("jid")
+		// A status broadcast receipt states the type per participant — one node can carry a
+		// read for one viewer and a delivery for another — and the enclosing <receipt> then
+		// has no type attribute at all, so without this every participant looks delivered.
+		//
+		// "delivery" is the explicit spelling of ReceiptTypeDelivered, which is the empty
+		// string everywhere else, so it is normalised rather than passed through as a type
+		// no caller can match against.
+		if userType := ag.OptionalString("type"); userType != "" {
+			if userType == "delivery" {
+				receipt.Type = types.ReceiptTypeDelivered
+			} else {
+				receipt.Type = types.ReceiptType(userType)
+			}
+		}
 		if !ag.OK() {
 			cli.Log.Warnf("Failed to parse user node %s in grouped receipt: %v", &child, ag.Error())
 			continue
