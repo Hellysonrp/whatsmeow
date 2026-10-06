@@ -1347,6 +1347,8 @@ const (
 	BotCapabilityMetadata_AI_RICH_RESPONSE_REMINDERS_ENABLED         BotCapabilityMetadata_BotCapabilityType = 69
 	BotCapabilityMetadata_AI_STOP_GENERATION_ENABLED                 BotCapabilityMetadata_BotCapabilityType = 70
 	BotCapabilityMetadata_AI_RICH_RESPONSE_3P_LINKING_CARD_ENABLED   BotCapabilityMetadata_BotCapabilityType = 71
+	BotCapabilityMetadata_HATCH_NOTIFICATION_METADATA_EVENT_ENABLED  BotCapabilityMetadata_BotCapabilityType = 72
+	BotCapabilityMetadata_HATCH_CONNECTOR_ACTION_CARD_ENABLED        BotCapabilityMetadata_BotCapabilityType = 76
 )
 
 // Enum value maps for BotCapabilityMetadata_BotCapabilityType.
@@ -1424,6 +1426,8 @@ var (
 		69: "AI_RICH_RESPONSE_REMINDERS_ENABLED",
 		70: "AI_STOP_GENERATION_ENABLED",
 		71: "AI_RICH_RESPONSE_3P_LINKING_CARD_ENABLED",
+		72: "HATCH_NOTIFICATION_METADATA_EVENT_ENABLED",
+		76: "HATCH_CONNECTOR_ACTION_CARD_ENABLED",
 	}
 	BotCapabilityMetadata_BotCapabilityType_value = map[string]int32{
 		"UNKNOWN":                                    0,
@@ -1498,6 +1502,8 @@ var (
 		"AI_RICH_RESPONSE_REMINDERS_ENABLED":         69,
 		"AI_STOP_GENERATION_ENABLED":                 70,
 		"AI_RICH_RESPONSE_3P_LINKING_CARD_ENABLED":   71,
+		"HATCH_NOTIFICATION_METADATA_EVENT_ENABLED":  72,
+		"HATCH_CONNECTOR_ACTION_CARD_ENABLED":        76,
 	}
 )
 
@@ -7908,9 +7914,9 @@ const file_waAICommon_WAWebProtobufsAICommon_proto_rawDesc = "" +
 	"\aUNKNOWN\x10\x00\x12\v\n" +
 	"\aPLANNED\x10\x01\x12\r\n" +
 	"\tEXECUTING\x10\x02\x12\f\n" +
-	"\bFINISHED\x10\x03\"\x99\x14\n" +
+	"\bFINISHED\x10\x03\"\xf1\x14\n" +
 	"\x15BotCapabilityMetadata\x12c\n" +
-	"\fcapabilities\x18\x01 \x03(\x0e2?.WAWebProtobufsAICommon.BotCapabilityMetadata.BotCapabilityTypeR\fcapabilities\"\x9a\x13\n" +
+	"\fcapabilities\x18\x01 \x03(\x0e2?.WAWebProtobufsAICommon.BotCapabilityMetadata.BotCapabilityTypeR\fcapabilities\"\xf2\x13\n" +
 	"\x11BotCapabilityType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\x16\n" +
 	"\x12PROGRESS_INDICATOR\x10\x01\x12\x19\n" +
@@ -7985,7 +7991,9 @@ const file_waAICommon_WAWebProtobufsAICommon_proto_rawDesc = "" +
 	"'AI_RICH_RESPONSE_EMAIL_CALENDAR_ENABLED\x10D\x12&\n" +
 	"\"AI_RICH_RESPONSE_REMINDERS_ENABLED\x10E\x12\x1e\n" +
 	"\x1aAI_STOP_GENERATION_ENABLED\x10F\x12,\n" +
-	"(AI_RICH_RESPONSE_3P_LINKING_CARD_ENABLED\x10G\"\xd8\x01\n" +
+	"(AI_RICH_RESPONSE_3P_LINKING_CARD_ENABLED\x10G\x12-\n" +
+	")HATCH_NOTIFICATION_METADATA_EVENT_ENABLED\x10H\x12'\n" +
+	"#HATCH_CONNECTOR_ACTION_CARD_ENABLED\x10L\"\xd8\x01\n" +
 	"\x18BotModeSelectionMetadata\x12Y\n" +
 	"\x04mode\x18\x01 \x03(\x0e2E.WAWebProtobufsAICommon.BotModeSelectionMetadata.BotUserSelectionModeR\x04mode\x12\"\n" +
 	"\foverrideMode\x18\x02 \x03(\rR\foverrideMode\"=\n" +

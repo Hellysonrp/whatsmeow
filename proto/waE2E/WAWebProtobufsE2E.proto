@@ -1466,6 +1466,7 @@ message ContextInfo {
 		optional int32 agmSubtitleStrategy = 31;
 		optional int32 agmHeaderInteractionStrategy = 32;
 		optional bool containsCtwaFlowsAutoLabel = 33;
+		optional string productID = 34;
 	}
 
 	message AdReplyInfo {
@@ -1884,6 +1885,7 @@ message Message {
 	optional FutureProofMessage newsletterScheduledMessage = 132;
 	optional FutureProofMessage acp2SettingMessage = 133;
 	optional FutureProofMessage audioStickerMessage = 134;
+	optional FutureProofMessage botGroupParticipantMessage = 137;
 }
 
 message AlbumMessage {
